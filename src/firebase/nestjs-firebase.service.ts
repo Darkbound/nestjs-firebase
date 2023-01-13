@@ -3,7 +3,7 @@ import { FirebaseAdmin } from "nestjs-firebase/lib/firebase.interface";
 import { UpdateData } from "firebase-admin/firestore";
 
 export class NestjsFirebase<Entity> {
-  constructor(protected readonly firebase: FirebaseAdmin, protected readonly collectionPath: string) {}
+  constructor(protected readonly firebase: FirebaseAdmin, protected readonly collectionPath: string | string[]) {}
 
   async create(createEntityDto: Partial<Entity & { id: string }>): Promise<string> {
     const db = new FirebaseCollectionService<Entity>(this.firebase, this.collectionPath);

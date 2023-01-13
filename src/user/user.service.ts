@@ -14,7 +14,7 @@ export class UserService extends NestjsFirebase<User> {
   }
 
   async addCredits(id: string, updateUserCredits: UpdateUserCreditsDto): Promise<void> {
-    const db = new FirebaseCollectionService<User>(super.firebase, super.collectionPath);
+    const db = new FirebaseCollectionService<User>(super.firebase, super.collectionPath as string);
 
     await db.update(id, {
       credits: updateUserCredits.credits

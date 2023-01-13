@@ -6,7 +6,7 @@ import { FirebaseAdmin } from "nestjs-firebase/lib/firebase.interface";
 export class FirebaseCollectionService<T> extends FirebaseService<T> {
   protected db: CollectionReference<T>;
 
-  constructor(firebase: FirebaseAdmin, collectionPath: string) {
+  constructor(firebase: FirebaseAdmin, collectionPath: string | string[]) {
     super(firebase.db);
 
     this.db = super.createCollection(collectionPath);

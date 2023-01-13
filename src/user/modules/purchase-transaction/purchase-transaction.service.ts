@@ -1,26 +1,13 @@
 import { Injectable } from "@nestjs/common";
-import { CreatePurchaseTransactionDto } from "./dto/create-purchase-transaction.dto";
-import { UpdatePurchaseTransactionDto } from "./dto/update-purchase-transaction.dto";
+import { FirebaseAdmin } from "nestjs-firebase/lib/firebase.interface";
+import { InjectFirebaseAdmin } from "nestjs-firebase/lib/firebase.decorator";
+import { PurchaseTransaction } from "./entities/purchase-transaction.entity";
+import { NestjsFirebase } from "src/firebase/nestjs-firebase.service";
 
 @Injectable()
-export class PurchaseTransactionService {
-  create(createPurchaseTransactionDto: CreatePurchaseTransactionDto) {
-    return "This action adds a new purchaseTransaction";
-  }
-
-  findAll() {
-    return `This action returns all purchaseTransaction`;
-  }
-
-  findOne(transactionId: string) {
-    return `This action returns a #${transactionId} purchaseTransaction`;
-  }
-
-  update(transactionId: string, updatePurchaseTransactionDto: UpdatePurchaseTransactionDto) {
-    return `This action updates a #${transactionId} purchaseTransaction`;
-  }
-
-  remove(transactionId: string) {
-    return `This action removes a #${transactionId} purchaseTransaction`;
+export class PurchaseTransactionService extends NestjsFirebase<PurchaseTransaction> {
+  constructor(@InjectFirebaseAdmin() firebase: FirebaseAdmin) {
+    // So how to get userId to here and get it to reinitialize when userId changes?
+    super(firebase, ["users", userId, "purchaseTransactions"]);
   }
 }
