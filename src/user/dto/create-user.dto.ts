@@ -1,4 +1,4 @@
-import * as Joi from "joi";
+import * as Yup from "yup";
 
 export class CreateUserDto {
   acceptedToS: boolean;
@@ -9,13 +9,11 @@ export class CreateUserDto {
   password: string;
 }
 
-export const CreateUserDtoSchema = Joi.object<CreateUserDto, true>({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
-  acceptedToSAt: Joi.number().required(),
-  acceptedToS: Joi.boolean().required()
-}).options({
-  abortEarly: false
+export const CreateUserDtoSchema: Yup.SchemaOf<CreateUserDto> = Yup.object({
+  firstName: Yup.string().required(),
+  lastName: Yup.string().required(),
+  email: Yup.string().email().required(),
+  password: Yup.string().required(),
+  acceptedToSAt: Yup.number().required(),
+  acceptedToS: Yup.boolean().required()
 });

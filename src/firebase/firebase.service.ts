@@ -1,28 +1,75 @@
 import { CollectionReference } from "@google-cloud/firestore";
 import { UpdateData } from "firebase-admin/firestore";
 
-export abstract class FirebaseService<T> {
+export abstract class FirebaseService<T, PathIds> {
   protected firestore: FirebaseFirestore.Firestore;
 
-  constructor(firebaseAdmin: FirebaseFirestore.Firestore) {
+  constructor(firebaseAdmin: FirebaseFirestore.Firestore, protected collectionPath: string) {
     this.firestore = firebaseAdmin;
   }
 
-  protected createCollection<T>(collectionName: string | string[]) {
-    if (typeof collectionName === "string") return this.firestore.collection(collectionName) as CollectionReference<T>;
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const collectionPath: CollectionReference<T> = collectionName.reduce((accumulatedPath, currentPath, i) => {
-      return accumulatedPath[i % 2 === 0 ? "collection" : "doc"](currentPath);
-    }, this.firestore);
-
-    return collectionPath;
+  protected getDb(pathArgs?: Partial<PathIds>): CollectionReference<T> {
+    return this.createCollection(this.generateDocumentPath(pathArgs));
   }
 
-  public abstract findOne(id: string): Promise<T>;
-  public abstract findAll(): Promise<T[]>;
-  public abstract create(createObj: Partial<T & { id: string }>): Promise<string>;
-  public abstract delete(id: string): Promise<void>;
-  public abstract update(id: string, updateObj: UpdateData<T>): Promise<void>;
+  protected createCollection(collectionName: string): CollectionReference<T> {
+    return this.firestore.collection(collectionName) as CollectionReference<T>;
+  }
+
+  protected generateRandomId = (length: number): string => {
+    const alphaNum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
+
+    let chars = alphaNum;
+
+    let id = "";
+
+    for (let i = 0; i < length; i++) {
+      id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return id;
+  };
+
+  protected generateDocumentPath(args = {}) {
+    const pathSplit = (this.collectionPath as string).split("/");
+
+    const allKeys = pathSplit.filter(path => path.includes("{")).map(path => path.replace("{", "").replace("}", ""));
+
+    const argsKeys = Object.keys(args);
+
+    for (const argsKey of argsKeys) {
+      if (!allKeys.includes(argsKey)) throw new Error(`Extra keys were provided! The key { ${argsKey} } is not necessary!`);
+    }
+
+    const requiredKeys = allKeys.slice(0, allKeys.length);
+
+    for (const requiredKey of requiredKeys) {
+      if (!args[requiredKey])
+        throw new Error(`Key ${requiredKey} is required, but missing! { ${requiredKeys.join(", ")} } are all required!`);
+    }
+
+    let documentPath = "";
+
+    for (const path of pathSplit) {
+      if (path.includes("{")) {
+        const key = path.substring(1, path.length - 1);
+        const keyValue = args[key];
+
+        if (keyValue) {
+          documentPath += "/" + keyValue;
+        }
+      } else {
+        documentPath += "/" + path;
+      }
+    }
+
+    // to remove first slash
+    return documentPath.substring(1);
+  }
+
+  public abstract findOne(id: string, pathArgs?: Partial<PathIds>): Promise<T>;
+  public abstract findAll(pathArgs?: Partial<PathIds>): Promise<T[]>;
+  public abstract create(createObj: Partial<T & { id: string }>, pathArgs?: Partial<PathIds>): Promise<string>;
+  public abstract delete(id: string, pathArgs?: Partial<PathIds>): Promise<void>;
+  public abstract update(id: string, updateObj: UpdateData<T>, pathArgs?: Partial<PathIds>): Promise<void>;
 }

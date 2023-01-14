@@ -10,8 +10,8 @@ export class PurchaseTransactionController {
   constructor(private readonly purchaseTransactionService: PurchaseTransactionService) {}
 
   @Post()
-  create(@Body() createPurchaseTransactionDto: CreatePurchaseTransactionDto) {
-    return this.purchaseTransactionService.create(createPurchaseTransactionDto);
+  create(@Param("userId") userId: string, @Body() createPurchaseTransactionDto: CreatePurchaseTransactionDto) {
+    return this.purchaseTransactionService.create(createPurchaseTransactionDto, { userId });
   }
 
   @Get()
@@ -20,8 +20,8 @@ export class PurchaseTransactionController {
   }
 
   @Get(":transactionId")
-  findOne(@Param("transactionId") transactionId: string) {
-    return this.purchaseTransactionService.findOne(transactionId);
+  findOne(@Param("userId") userId: string, @Param("transactionId") transactionId: string) {
+    return this.purchaseTransactionService.findOne(transactionId, { userId });
   }
 
   @Patch(":transactionId/state")
