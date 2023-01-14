@@ -1,14 +1,16 @@
 import { CollectionReference } from "@google-cloud/firestore";
 import { UpdateData } from "firebase-admin/firestore";
 
-export abstract class FirebaseService<T, PathIds> {
+type PathArgs<Z> = [Z] extends [never] ? [] : [pathArgs: Z];
+
+export abstract class FirebaseService<T, P> {
   protected firestore: FirebaseFirestore.Firestore;
 
   constructor(firebaseAdmin: FirebaseFirestore.Firestore, protected collectionPath: string) {
     this.firestore = firebaseAdmin;
   }
 
-  protected getDb(pathArgs?: Partial<PathIds>): CollectionReference<T> {
+  protected getDb(...pathArgs: PathArgs<P>): CollectionReference<T> {
     return this.createCollection(this.generateDocumentPath(pathArgs));
   }
 
@@ -67,9 +69,9 @@ export abstract class FirebaseService<T, PathIds> {
     return documentPath.substring(1);
   }
 
-  public abstract findOne(id: string, pathArgs?: Partial<PathIds>): Promise<T>;
-  public abstract findAll(pathArgs?: Partial<PathIds>): Promise<T[]>;
-  public abstract create(createObj: Partial<T & { id: string }>, pathArgs?: Partial<PathIds>): Promise<string>;
-  public abstract delete(id: string, pathArgs?: Partial<PathIds>): Promise<void>;
-  public abstract update(id: string, updateObj: UpdateData<T>, pathArgs?: Partial<PathIds>): Promise<void>;
+  public abstract findOne(id: string, ...pathArgs: PathArgs<P>): Promise<T>;
+  public abstract findAll(...pathArgs: PathArgs<P>): Promise<T[]>;
+  public abstract create(createObj: Partial<T & { id: string }>, ...pathArgs: PathArgs<P>): Promise<string>;
+  public abstract delete(id: string, ...pathArgs: PathArgs<P>): Promise<void>;
+  public abstract update(id: string, updateObj: UpdateData<T>, ...pathArgs: PathArgs<P>): Promise<void>;
 }

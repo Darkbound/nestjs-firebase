@@ -15,8 +15,8 @@ export class PurchaseTransactionController {
   }
 
   @Get()
-  findAll() {
-    return this.purchaseTransactionService.findAll();
+  findAll(@Param("userId") userId: string) {
+    return this.purchaseTransactionService.findAll({ userId });
   }
 
   @Get(":transactionId")
@@ -25,7 +25,11 @@ export class PurchaseTransactionController {
   }
 
   @Patch(":transactionId/state")
-  update(@Param("transactionId") transactionId: string, @Body() updatePurchaseTransactionDto: UpdatePurchaseTransactionDto) {
-    return this.purchaseTransactionService.update(transactionId, updatePurchaseTransactionDto);
+  update(
+    @Param("userId") userId: string,
+    @Param("transactionId") transactionId: string,
+    @Body() updatePurchaseTransactionDto: UpdatePurchaseTransactionDto
+  ) {
+    return this.purchaseTransactionService.update(transactionId, updatePurchaseTransactionDto, { userId });
   }
 }

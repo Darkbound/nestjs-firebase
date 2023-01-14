@@ -4,9 +4,23 @@ import { InjectFirebaseAdmin } from "nestjs-firebase/lib/firebase.decorator";
 import { PurchaseTransaction } from "./entities/purchase-transaction.entity";
 import { FirebaseCollectionService } from "src/firebase/firebase-collection.service";
 
+type FirebaseCollectionPathParams = {
+  userId: string;
+};
+
 @Injectable()
-export class PurchaseTransactionService extends FirebaseCollectionService<PurchaseTransaction, { userId: string; transactionId: string }> {
+export class PurchaseTransactionService extends FirebaseCollectionService<PurchaseTransaction, FirebaseCollectionPathParams> {
   constructor(@InjectFirebaseAdmin() firebase: FirebaseAdmin) {
-    super(firebase, "users/{userId}/purchase-transactions");
+    super(firebase.db, "users/{userId}/purchase-transactions");
+  }
+
+  async someComplexStuff(id: string, pathArgs: FirebaseCollectionPathParams): Promise<PurchaseTransaction> {
+    const transaction = await super.findOne(id, pathArgs);
+
+    await super.update(id, { hello: "hello" }, pathArgs);
+
+    return transaction;
   }
 }
+
+// Path args is required for nested collections!

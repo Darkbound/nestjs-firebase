@@ -1,1 +1,3 @@
-export class PurchaseTransaction {}
+export class PurchaseTransaction {
+  hello: string;
+}

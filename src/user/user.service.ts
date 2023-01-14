@@ -6,9 +6,9 @@ import { FirebaseCollectionService } from "src/firebase/firebase-collection.serv
 import { UpdateUserCreditsDto } from "./dto/update-user-credits.dto";
 
 @Injectable()
-export class UserService extends FirebaseCollectionService<User, { userId: string }> {
+export class UserService extends FirebaseCollectionService<User> {
   constructor(@InjectFirebaseAdmin() firebase: FirebaseAdmin) {
-    super(firebase, "users");
+    super(firebase.db, "users");
   }
 
   async addCredits(id: string, updateUserCredits: UpdateUserCreditsDto): Promise<void> {
