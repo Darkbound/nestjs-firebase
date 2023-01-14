@@ -38,4 +38,4 @@ lerna-debug.log*
 .env
 
 src/game
-src/user/modules/credits-transactions
+src/user/modules/credits-transaction
