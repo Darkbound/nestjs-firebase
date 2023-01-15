@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { OrderByDirection, UpdateData } from "firebase-admin/firestore";
+import { OrderByDirection, UpdateData, Firestore } from "firebase-admin/firestore";
 import { FirebaseService } from "./firebase.service";
 
 type PathArgs<Z> = [Z] extends [never] ? [] : [pathArgs: Z];
 
 @Injectable()
 export class FirebaseCollectionService<T, P = never> extends FirebaseService<T, P> {
-  constructor(firebase: FirebaseFirestore.Firestore, collectionPath: string) {
+  constructor(firebase: Firestore, collectionPath: string) {
     super(firebase, collectionPath);
   }
 

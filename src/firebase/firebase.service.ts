@@ -1,17 +1,17 @@
 import { CollectionReference } from "@google-cloud/firestore";
-import { UpdateData } from "firebase-admin/firestore";
+import { UpdateData, Firestore } from "firebase-admin/firestore";
 
 type PathArgs<Z> = [Z] extends [never] ? [] : [pathArgs: Z];
 
 export abstract class FirebaseService<T, P> {
-  protected firestore: FirebaseFirestore.Firestore;
+  protected firestore: Firestore;
 
-  constructor(firebaseAdmin: FirebaseFirestore.Firestore, protected collectionPath: string) {
+  constructor(firebaseAdmin: Firestore, protected collectionPath: string) {
     this.firestore = firebaseAdmin;
   }
 
   protected getDb(...pathArgs: PathArgs<P>): CollectionReference<T> {
-    return this.createCollection(this.generateDocumentPath(pathArgs));
+    return this.createCollection(this.generateDocumentPath(...pathArgs));
   }
 
   protected createCollection(collectionName: string): CollectionReference<T> {
@@ -32,12 +32,14 @@ export abstract class FirebaseService<T, P> {
     return id;
   };
 
-  protected generateDocumentPath(args = {}) {
+  protected generateDocumentPath(...args: PathArgs<P>) {
+    const pathArgs = [...args][0];
+
     const pathSplit = (this.collectionPath as string).split("/");
 
     const allKeys = pathSplit.filter(path => path.includes("{")).map(path => path.replace("{", "").replace("}", ""));
 
-    const argsKeys = Object.keys(args);
+    const argsKeys = Object.keys(pathArgs);
 
     for (const argsKey of argsKeys) {
       if (!allKeys.includes(argsKey)) throw new Error(`Extra keys were provided! The key { ${argsKey} } is not necessary!`);
@@ -46,7 +48,7 @@ export abstract class FirebaseService<T, P> {
     const requiredKeys = allKeys.slice(0, allKeys.length);
 
     for (const requiredKey of requiredKeys) {
-      if (!args[requiredKey])
+      if (!pathArgs[requiredKey])
         throw new Error(`Key ${requiredKey} is required, but missing! { ${requiredKeys.join(", ")} } are all required!`);
     }
 
@@ -55,7 +57,7 @@ export abstract class FirebaseService<T, P> {
     for (const path of pathSplit) {
       if (path.includes("{")) {
         const key = path.substring(1, path.length - 1);
-        const keyValue = args[key];
+        const keyValue = pathArgs[key];
 
         if (keyValue) {
           documentPath += "/" + keyValue;
